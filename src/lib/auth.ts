@@ -16,6 +16,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 	 * If 'db' is correctly initialized with the schema in @/server/db,
 	 * the type mismatch (SqlFlavorOptions) should resolve.
 	 */
+	// @ts-expect-error - Mismatched drizzle-orm versions between Auth.js adapter and local dependencies
 	adapter: DrizzleAdapter(db, {
 		usersTable: users,
 		accountsTable: accounts,
