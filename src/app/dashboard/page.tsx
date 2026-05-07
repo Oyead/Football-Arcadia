@@ -1,8 +1,12 @@
 import { auth } from "@/lib/auth";
-
+import { fetchFootballData } from "@/server/services/football-api";
 export default async function DashboardPage() {
 	const session = await auth();
-
+	const standings = await fetchFootballData(
+		"/standings",
+		{ league: "39", season: "2023" },
+		3600,
+	);
 	return (
 		<div className="space-y-6">
 			<header>
