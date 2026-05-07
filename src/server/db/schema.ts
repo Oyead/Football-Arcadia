@@ -186,3 +186,10 @@ export const verificationTokens = pgTable(
 		compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
 	}),
 );
+export const apiCache = pgTable("api_cache", {
+	key: text("key").primaryKey(), // e.g., 'leagues_v3' or 'fixtures_live'
+	data: jsonb("data").notNull(), // Stores the raw JSON response
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.defaultNow()
+		.notNull(),
+});
