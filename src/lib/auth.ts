@@ -2,7 +2,6 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import { db } from "@/server/db";
-// Import the tables individually to use them in the adapter config
 import {
 	accounts,
 	sessions,

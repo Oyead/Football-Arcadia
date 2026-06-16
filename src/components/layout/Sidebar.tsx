@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { signOut } from "@/lib/auth";
 
 export default function Sidebar() {
 	return (
@@ -23,23 +22,6 @@ export default function Sidebar() {
 					Matches
 				</Link>
 			</nav>
-
-			{/* Sign Out Section at the Bottom */}
-			<div className="p-4 border-t">
-				<form
-					action={async () => {
-						"use server";
-						await signOut({ redirectTo: "/login" }); // Redirects to login after clearing the session
-					}}
-				>
-					<button
-						type="submit"
-						className="w-full text-left p-2 text-red-500 hover:bg-red-50 rounded transition-colors"
-					>
-						Sign Out
-					</button>
-				</form>
-			</div>
 		</aside>
 	);
 }

@@ -6,9 +6,7 @@ export default function LoginPage() {
 		<div className="flex min-h-screen flex-col items-center justify-center bg-muted/50">
 			<div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
 				<div className="flex flex-col space-y-2 text-center">
-					<h1 className="text-2xl font-semibold tracking-tight">
-						Welcome back, Legend
-					</h1>
+					<h1 className="text-2xl font-semibold tracking-tight">Welcome !</h1>
 					<p className="text-sm text-muted-foreground">
 						Sign in to track your favorite teams and leagues.
 					</p>
@@ -20,8 +18,11 @@ export default function LoginPage() {
 						await signIn("google", { redirectTo: "/dashboard" });
 					}}
 				>
-					<Button className="w-full" type="submit" variant="outline">
-						{/* You can add a Google Icon SVG here */}
+					<Button
+						className="w-full cursor-pointer"
+						type="submit"
+						variant="outline"
+					>
 						Continue with Google
 					</Button>
 				</form>
