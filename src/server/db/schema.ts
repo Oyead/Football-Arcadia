@@ -14,13 +14,13 @@ import type { AdapterAccount } from "next-auth/adapters"; // Add this to your im
 
 // --- USERS & AUTH ---
 export const users = pgTable("users", {
-	id: text("id").primaryKey(),
-	email: text("email").notNull().unique(),
+	id: text("id").notNull().primaryKey(),
 	name: text("name"),
+	email: text("email").notNull(),
+	emailVerified: timestamp("email_verified", { mode: "date" }),
 	image: text("image"),
-	emailVerified: timestamp("email_verified", { mode: "date" }), // ADD THIS LINE
-	pushSubscription: jsonb("push_subscription"),
-	createdAt: timestamp("created_at").defaultNow().notNull(),
+	pushSubscription: text("push_subscription"),
+	createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const userFavourites = pgTable(
@@ -168,7 +168,7 @@ export const accounts = pgTable(
 );
 
 export const sessions = pgTable("session", {
-	sessionToken: text("sessionToken").primaryKey(),
+	sessionToken: text("sessionToken").notNull().primaryKey(),
 	userId: text("userId")
 		.notNull()
 		.references(() => users.id, { onDelete: "cascade" }),
