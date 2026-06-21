@@ -3,17 +3,16 @@
 import DOMPurify from "dompurify";
 import { Moon, SearchIcon, Sun } from "lucide-react";
 import Image from "next/image";
-import type { User } from "next-auth";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 
-export default function Navbar({ user }: { user?: User }) {
+export default function Navbar() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isDivVisible, setIsDivVisible] = useState(false);
 	const [mounted, setMounted] = useState(false);
-
+	const { data: session, status } = useSession();
 	const { theme, setTheme } = useTheme();
 	const menuRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +43,7 @@ export default function Navbar({ user }: { user?: User }) {
 		document.addEventListener("mousedown", handleClickOutside);
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
-
+	const user = session?.user;
 	return (
 		<nav className="grid grid-cols-[1fr_2fr_1fr] w-full h-16 items-center border-b px-6 bg-white dark:bg-zinc-950 dark:border-zinc-800 transition-colors duration-200">
 			<div className="font-bold text-xl justify-self-start dark:text-white">
@@ -66,7 +65,6 @@ export default function Navbar({ user }: { user?: User }) {
 				ref={menuRef}
 				className="justify-self-end relative flex items-center gap-4"
 			>
-				{/* Theme Toggle Button */}
 				<button
 					type="button"
 					onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -81,35 +79,54 @@ export default function Navbar({ user }: { user?: User }) {
 						))}
 				</button>
 
-				{/* Profile Trigger */}
-				<button
-					type="button"
-					onClick={() => setIsDivVisible(!isDivVisible)}
-					className="flex items-center gap-4 focus:outline-none dark:text-white"
-				>
-					<span>{user?.name}</span>
-					<div className="relative h-10 w-10 rounded-full border border-zinc-200 dark:border-zinc-800">
-						{user?.image && (
-							<Image
-								src={user.image}
-								alt={user.name || "User profile"}
-								fill
-								className="rounded-full cursor-pointer object-cover"
-							/>
-						)}
-					</div>
-				</button>
-
-				{isDivVisible && (
-					<div className="absolute right-0 top-12 z-50 w-48 rounded-md shadow-lg p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-						<Button
-							className="w-full cursor-pointer"
-							variant="destructive"
-							onClick={handleSignOut}
+				{status === "authenticated" && user ? (
+					<>
+						<button
+							type="button"
+							onClick={() => setIsDivVisible(!isDivVisible)}
+							className="flex items-center gap-4 focus:outline-none dark:text-white cursor-pointer"
 						>
-							Log Out
-						</Button>
-					</div>
+							<span>{user.name}</span>
+							<div className="relative h-10 w-10 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
+								{user.image ? (
+									<Image
+										src={user.image}
+										alt={user.name || "User profile"}
+										fill
+										className="rounded-full cursor-pointer object-cover"
+									/>
+								) : (
+									<div className="w-full h-full flex items-center justify-center text-xs font-bold uppercase">
+										{user.name?.slice(0, 2) || "U"}
+									</div>
+								)}
+							</div>
+						</button>
+
+						{isDivVisible && (
+							<div className="absolute right-0 top-12 z-50 w-48 rounded-md shadow-lg p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+								<Button
+									className="w-full cursor-pointer"
+									variant="destructive"
+									onClick={handleSignOut}
+								>
+									Log Out
+								</Button>
+							</div>
+						)}
+					</>
+				) : status === "loading" ? (
+					<div className="w-8 h-8 rounded-full border-2 border-zinc-300 border-t-zinc-600 animate-spin" />
+				) : (
+					<Button
+						variant="outline"
+						onClick={() =>
+							(window.location.href = "/api/auth/signin?callbackUrl=/")
+						}
+						className="cursor-pointer"
+					>
+						Sign In
+					</Button>
 				)}
 			</div>
 		</nav>

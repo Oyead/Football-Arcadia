@@ -10,7 +10,6 @@ export default async function DashboardLayout({
 }) {
 	const session = await auth();
 
-	// AUTH GUARD: Redirect to login if no session exists
 	if (!session) {
 		redirect("/login");
 	}

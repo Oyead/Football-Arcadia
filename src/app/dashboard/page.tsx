@@ -1,12 +1,6 @@
 import { auth } from "@/lib/auth";
-import { fetchFootballData } from "@/server/services/football-api";
 export default async function DashboardPage() {
 	const session = await auth();
-	const standings = await fetchFootballData(
-		"/standings",
-		{ league: "39", season: "2023" },
-		3600,
-	);
 	return (
 		<div className="space-y-6">
 			<header>
@@ -17,7 +11,6 @@ export default async function DashboardPage() {
 			</header>
 
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-				{/* Placeholder cards for Favourites, Live Scores, etc. */}
 				<div className="rounded-xl border bg-card p-6 shadow-sm">
 					<h3 className="font-semibold text-sm">Followed Teams</h3>
 					<p className="text-2xl font-bold">12</p>

@@ -1,4 +1,3 @@
-// src/app/dashboard/leagues/[id]/page.tsx
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { FootballRepository } from "@/server/repositories/football.repository";
