@@ -1,38 +1,75 @@
-export const TOP_LEAGUES = [
+export type LeaguePriorityInfo = {
+	id: number;
+	name: string;
+	country: string;
+	logo: string;
+	priority: number;
+};
+
+export const LEAGUE_PRIORITIES: LeaguePriorityInfo[] = [
 	{
-		id: 39,
+		id: 2001,
+		name: "UEFA Champions League",
+		country: "Europe",
+		logo: "https://crests.football-data.org/CL.png",
+		priority: 1,
+	},
+	{
+		id: 2021,
 		name: "Premier League",
 		country: "England",
-		logo: "https://media.api-sports.io/football/leagues/39.png",
+		logo: "https://crests.football-data.org/PL.png",
+		priority: 2,
 	},
 	{
-		id: 140,
-		name: "La Liga",
+		id: 2014,
+		name: "Primera Division",
 		country: "Spain",
-		logo: "https://media.api-sports.io/football/leagues/140.png",
+		logo: "https://crests.football-data.org/PD.png",
+		priority: 3,
 	},
 	{
-		id: 61,
-		name: "Ligue 1",
-		country: "France",
-		logo: "https://media.api-sports.io/football/leagues/61.png",
-	},
-	{
-		id: 78,
+		id: 2002,
 		name: "Bundesliga",
 		country: "Germany",
-		logo: "https://media.api-sports.io/football/leagues/78.png",
+		logo: "https://crests.football-data.org/BL1.png",
+		priority: 4,
 	},
 	{
-		id: 135,
+		id: 2019,
 		name: "Serie A",
 		country: "Italy",
-		logo: "https://media.api-sports.io/football/leagues/135.png",
+		logo: "https://crests.football-data.org/SA.png",
+		priority: 5,
 	},
 	{
-		id: 94,
+		id: 2015,
+		name: "Ligue 1",
+		country: "France",
+		logo: "https://crests.football-data.org/FL1.png",
+		priority: 6,
+	},
+	{
+		id: 2017,
 		name: "Primeira Liga",
 		country: "Portugal",
-		logo: "https://media.api-sports.io/football/leagues/94.png",
+		logo: "https://crests.football-data.org/PPL.png",
+		priority: 7,
+	},
+	{
+		id: 2000,
+		name: "FIFA World Cup",
+		country: "World",
+		logo: "https://crests.football-data.org/wm26.png",
+		priority: 8,
+	},
+	{
+		id: 2018,
+		name: "European Championship",
+		country: "Europe",
+		logo: "https://crests.football-data.org/EC.png",
+		priority: 9,
 	},
 ];
+
+export const TOP_LEAGUES = LEAGUE_PRIORITIES;
