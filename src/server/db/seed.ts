@@ -1,4 +1,4 @@
-import { TOP_LEAGUES } from "../../lib/constants/leagues";
+import { LEAGUE_PRIORITIES } from "../../lib/constants/leagues";
 import { db } from "./index";
 import { leagues } from "./schema";
 
@@ -6,10 +6,10 @@ async function seed() {
 	console.log("Seeding leagues...");
 
 	try {
-		for (const league of TOP_LEAGUES) {
+		for (const { logo, priority, ...league } of LEAGUE_PRIORITIES) {
 			await db
 				.insert(leagues)
-				.values(league)
+				.values({ ...league, logoUrl: logo })
 				.onConflictDoUpdate({
 					target: leagues.id,
 					set: { name: league.name, country: league.country },
