@@ -71,5 +71,3 @@ export const LEAGUE_PRIORITIES: LeaguePriorityInfo[] = [
 		priority: 9,
 	},
 ];
-
-export const TOP_LEAGUES = LEAGUE_PRIORITIES;
