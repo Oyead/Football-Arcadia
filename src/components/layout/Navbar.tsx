@@ -3,11 +3,11 @@
 import DOMPurify from "dompurify";
 import { Moon, SearchIcon, Sun } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
-
 export default function Navbar() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isDivVisible, setIsDivVisible] = useState(false);
@@ -46,9 +46,11 @@ export default function Navbar() {
 	const user = session?.user;
 	return (
 		<nav className="grid grid-cols-[1fr_2fr_1fr] w-full h-16 items-center border-b px-6 bg-white dark:bg-zinc-950 dark:border-zinc-800 transition-colors duration-200">
-			<div className="font-bold text-xl justify-self-start dark:text-white">
-				Dashboard
-			</div>
+			<Link href="/" className="block p-2 cursor-pointer">
+				<div className="font-bold text-xl justify-self-start dark:text-white">
+					Football Arcadia
+				</div>
+			</Link>
 
 			<div className="relative w-full min-w-[400px] max-w-xl shrink-0 justify-self-center mx-4">
 				<SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
