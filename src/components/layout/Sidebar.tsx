@@ -1,19 +1,64 @@
-import Link from "next/link";
+"use client";
 
-export default function Sidebar() {
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+
+const links = [
+	{ href: "/", label: "Home" },
+	{ href: "/dashboard/leagues", label: "Leagues" },
+];
+
+export default function Sidebar({
+	open,
+	onClose,
+}: {
+	open?: boolean;
+	onClose?: () => void;
+}) {
+	const pathname = usePathname();
+
 	return (
-		<aside className="w-64 border-r bg-muted/30 hidden md:flex flex-col h-screen">
-			<nav className="flex-1 px-4 py-6 space-y-2">
-				<Link href="/" className="block p-2 hover:bg-accent rounded">
-					Home
-				</Link>
-				<Link
-					href="/dashboard/leagues"
-					className="block p-2 hover:bg-accent rounded"
-				>
-					Leagues
-				</Link>
-			</nav>
-		</aside>
+		<>
+			{open && (
+				<button
+					type="button"
+					className="fixed inset-0 z-40 bg-black/50 md:hidden cursor-default"
+					onClick={onClose}
+					aria-label="Close navigation menu"
+				/>
+			)}
+			<aside
+				className={cn(
+					"fixed md:static inset-y-0 left-0 z-50 w-64 border-r bg-muted/30 flex flex-col h-full md:h-auto md:min-h-0 shrink-0 transition-transform duration-200 md:transition-none",
+					open ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+				)}
+			>
+				<nav className="flex-1 px-4 py-6 space-y-1 pt-20 md:pt-6">
+					{links.map((link) => {
+						const isActive =
+							link.href === "/"
+								? pathname === "/"
+								: pathname.startsWith(link.href);
+
+						return (
+							<Link
+								key={link.href}
+								href={link.href}
+								onClick={onClose}
+								className={cn(
+									"block p-2 rounded-md text-sm font-medium transition-colors",
+									isActive
+										? "bg-accent text-accent-foreground"
+										: "hover:bg-accent/50",
+								)}
+							>
+								{link.label}
+							</Link>
+						);
+					})}
+				</nav>
+			</aside>
+		</>
 	);
 }
