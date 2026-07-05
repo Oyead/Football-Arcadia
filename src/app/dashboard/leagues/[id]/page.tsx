@@ -134,25 +134,28 @@ export default async function LeagueDetailPage({ params }: PageProps) {
 	const isTournament = competitionType === "CUP" || groups.length > 1;
 
 	return (
-		<main className="p-6 space-y-8">
-			<div className="flex items-center gap-4">
+		<div className="space-y-6 sm:space-y-8">
+			<div className="flex items-center gap-3 sm:gap-4">
 				{league.logoUrl && (
-					<Image
-						src={league.logoUrl}
-						alt={league.name}
-						width={48}
-						height={48}
-					/>
+					<div className="w-14 h-14 flex items-center justify-center shrink-0">
+						<Image
+							src={league.logoUrl}
+							alt={league.name}
+							width={56}
+							height={56}
+							className="object-contain"
+						/>
+					</div>
 				)}
 				<div>
-					<h1 className="text-2xl font-bold">{league.name}</h1>
-					<p className="text-muted-foreground">{league.country}</p>
+					<h1 className="text-xl sm:text-2xl font-bold">{league.name}</h1>
+					<p className="text-sm text-muted-foreground">{league.country}</p>
 				</div>
 			</div>
 
 			{hasStandings ? (
 				<section>
-					<h2 className="text-xl font-semibold mb-4">Standings</h2>
+					<h2 className="text-lg sm:text-xl font-semibold mb-4">Standings</h2>
 					{isTournament ? (
 						<TournamentGroups groups={groups} />
 					) : (
@@ -164,7 +167,7 @@ export default async function LeagueDetailPage({ params }: PageProps) {
 					Standings not available for this competition.
 				</section>
 			)}
-		</main>
+		</div>
 	);
 }
 
@@ -201,51 +204,72 @@ function LeagueTable({ teams }: { teams: StandingTeam[] }) {
 			<table className="w-full text-sm">
 				<thead>
 					<tr className="border-b dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 text-muted-foreground">
-						<th className="p-3 text-left">#</th>
-						<th className="p-3 text-left">Team</th>
-						<th className="p-3 text-center">P</th>
-						<th className="p-3 text-center">W</th>
-						<th className="p-3 text-center">D</th>
-						<th className="p-3 text-center">L</th>
-						<th className="p-3 text-center">GF</th>
-						<th className="p-3 text-center">GA</th>
-						<th className="p-3 text-center">GD</th>
-						<th className="p-3 text-center">Pts</th>
-						<th className="p-3 text-center">Form</th>
+						<th className="p-2 sm:p-3 text-left">#</th>
+						<th className="p-2 sm:p-3 text-left">Team</th>
+						<th className="p-2 sm:p-3 text-center hidden sm:table-cell">P</th>
+						<th className="p-2 sm:p-3 text-center hidden lg:table-cell">W</th>
+						<th className="p-2 sm:p-3 text-center hidden lg:table-cell">D</th>
+						<th className="p-2 sm:p-3 text-center hidden lg:table-cell">L</th>
+						<th className="p-2 sm:p-3 text-center hidden xl:table-cell">GF</th>
+						<th className="p-2 sm:p-3 text-center hidden xl:table-cell">GA</th>
+						<th className="p-2 sm:p-3 text-center hidden md:table-cell">GD</th>
+						<th className="p-2 sm:p-3 text-center">Pts</th>
+						<th className="p-2 sm:p-3 text-center hidden sm:table-cell">
+							Form
+						</th>
 					</tr>
 				</thead>
 				<tbody>
 					{teams.map((team) => (
 						<tr
-							key={team.rank}
+							key={team.team.id}
 							className="border-b dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/20 transition-colors"
 						>
-							<td className="p-3 font-medium">{team.rank}</td>
-							<td className="p-3">
-								<div className="flex items-center gap-2">
+							<td className="p-2 sm:p-3 font-medium">{team.rank}</td>
+							<td className="p-2 sm:p-3">
+								<Link
+									href={`/dashboard/teams/${team.team.id}`}
+									className="flex items-center gap-2 min-w-0"
+								>
 									{team.team.logo && (
-										<Image
-											src={team.team.logo}
-											alt=""
-											width={20}
-											height={20}
-											className="object-contain"
-										/>
+										<div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shrink-0">
+											<Image
+												src={team.team.logo}
+												alt=""
+												width={24}
+												height={24}
+												className="object-contain"
+											/>
+										</div>
 									)}
-									<span className="font-medium">{team.team.name}</span>
-								</div>
+									<span className="font-medium truncate">{team.team.name}</span>
+								</Link>
 							</td>
-							<td className="p-3 text-center">{team.all.played}</td>
-							<td className="p-3 text-center">{team.all.win}</td>
-							<td className="p-3 text-center">{team.all.draw}</td>
-							<td className="p-3 text-center">{team.all.lose}</td>
-							<td className="p-3 text-center">{team.all.goalsFor}</td>
-							<td className="p-3 text-center">{team.all.goalsAgainst}</td>
-							<td className="p-3 text-center font-medium">
+							<td className="p-2 sm:p-3 text-center hidden sm:table-cell">
+								{team.all.played}
+							</td>
+							<td className="p-2 sm:p-3 text-center hidden lg:table-cell">
+								{team.all.win}
+							</td>
+							<td className="p-2 sm:p-3 text-center hidden lg:table-cell">
+								{team.all.draw}
+							</td>
+							<td className="p-2 sm:p-3 text-center hidden lg:table-cell">
+								{team.all.lose}
+							</td>
+							<td className="p-2 sm:p-3 text-center hidden xl:table-cell">
+								{team.all.goalsFor}
+							</td>
+							<td className="p-2 sm:p-3 text-center hidden xl:table-cell">
+								{team.all.goalsAgainst}
+							</td>
+							<td className="p-2 sm:p-3 text-center hidden md:table-cell font-medium">
 								{team.goalsDiff > 0 ? `+${team.goalsDiff}` : team.goalsDiff}
 							</td>
-							<td className="p-3 text-center font-bold">{team.points}</td>
-							<td className="p-3 text-center">
+							<td className="p-2 sm:p-3 text-center font-bold">
+								{team.points}
+							</td>
+							<td className="p-2 sm:p-3 text-center hidden sm:table-cell">
 								<FormIndicator form={team.form} />
 							</td>
 						</tr>
@@ -281,25 +305,28 @@ function TournamentGroups({ groups }: { groups: StandingTeam[][] }) {
 							</thead>
 							<tbody>
 								{group.map((team) => (
-									<tr key={team.rank} className="border-t dark:border-zinc-800">
+									<tr
+										key={team.team.id}
+										className="border-t dark:border-zinc-800"
+									>
 										<td className="p-2 font-medium">{team.rank}</td>
 										<td className="p-2">
 											<Link
 												href={`/dashboard/teams/${team.team.id}`}
 												className="flex items-center gap-2"
 											>
-												<div className="flex items-center gap-2 cursor-pointer">
-													{team.team.logo && (
+												{team.team.logo && (
+													<div className="w-6 h-6 flex items-center justify-center shrink-0">
 														<Image
 															src={team.team.logo}
 															alt=""
-															width={16}
-															height={16}
+															width={24}
+															height={24}
 															className="object-contain"
 														/>
-													)}
-													<span className="text-sm">{team.team.name}</span>
-												</div>
+													</div>
+												)}
+												<span className="text-sm">{team.team.name}</span>
 											</Link>
 										</td>
 										<td className="p-2 text-center font-bold">{team.points}</td>
