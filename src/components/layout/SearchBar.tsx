@@ -107,14 +107,14 @@ export default function SearchBar({ className }: { className?: string }) {
 
 	const input = (
 		<div className="relative w-full">
-			<SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
+			<SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 pointer-events-none" />
 			<input
 				type="search"
 				value={query}
 				onChange={(e) => handleChange(e.target.value)}
 				onFocus={() => query.length >= 2 && setIsOpen(true)}
 				placeholder="Search leagues & teams..."
-				className="w-full h-9 sm:h-10 pl-10 pr-9 rounded-full border outline-none text-sm bg-white dark:bg-zinc-900 dark:border-zinc-800 dark:text-white focus:ring-2 focus:ring-ring"
+				className="w-full h-10 sm:h-12 pl-11 pr-11 rounded-full border outline-none text-base bg-white dark:bg-zinc-900 dark:border-zinc-800 dark:text-white focus:ring-2 focus:ring-ring"
 				aria-label="Search leagues and teams"
 			/>
 			{query && (
@@ -128,7 +128,7 @@ export default function SearchBar({ className }: { className?: string }) {
 					className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
 					aria-label="Clear search"
 				>
-					<X className="w-4 h-4" />
+					<X className="w-5 h-5" />
 				</button>
 			)}
 		</div>

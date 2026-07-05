@@ -44,23 +44,25 @@ export default function Navbar({
 	}, []);
 
 	return (
-		<nav className="sticky top-0 z-30 flex h-14 sm:h-16 items-center gap-2 sm:gap-4 border-b px-3 sm:px-6 bg-white dark:bg-zinc-950 dark:border-zinc-800 transition-colors duration-200">
-			<button
-				type="button"
-				onClick={onMenuToggle}
-				className="md:hidden p-2 -ml-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 cursor-pointer shrink-0"
-				aria-label="Open navigation menu"
-			>
-				<Menu className="w-5 h-5" />
-			</button>
+		<nav className="sticky top-0 z-30 flex w-full h-14 sm:h-16 items-center justify-between border-b px-4 sm:px-8 bg-white dark:bg-zinc-950 dark:border-zinc-800 transition-colors duration-200">
+			<div className="flex items-center gap-2 sm:gap-4 shrink-0">
+				<button
+					type="button"
+					onClick={onMenuToggle}
+					className="md:hidden p-2 -ml-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 cursor-pointer shrink-0"
+					aria-label="Open navigation menu"
+				>
+					<Menu className="w-5 h-5" />
+				</button>
 
-			<Link href="/" className="shrink-0 p-1 sm:p-2 cursor-pointer">
-				<div className="font-bold text-base sm:text-xl dark:text-white whitespace-nowrap">
-					Football Arcadia
-				</div>
-			</Link>
+				<Link href="/" className="shrink-0 p-1 sm:p-2 cursor-pointer">
+					<div className="font-bold text-base sm:text-xl dark:text-white whitespace-nowrap">
+						Football Arcadia
+					</div>
+				</Link>
+			</div>
 
-			<div className="flex-1 min-w-0 flex justify-center max-w-xl mx-auto">
+			<div className="flex-1 max-w-2xl mx-4 hidden sm:block">
 				<SearchBar />
 			</div>
 
