@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Navbar from "@/components/layout/Navbar";
-import Sidebar from "@/components/layout/Sidebar";
+import AppShell from "@/components/layout/AppShell";
+import { auth } from "@/lib/auth";
 import { LEAGUE_PRIORITIES } from "@/lib/constants/leagues";
 import { fetchFootballData } from "@/server/services/football-api";
 export const revalidate = 300;
@@ -99,8 +99,11 @@ async function getGroupedTodayMatches(): Promise<GroupedMatches> {
 
 		const status = String(entry.status ?? "").trim() || "SCHEDULED";
 		const utcDate = String(entry.utcDate ?? "");
-		const matchTime = utcDate.includes("T")
-			? (utcDate.split("T")[1]?.slice(0, 5) ?? "00:00")
+		const matchTime = utcDate
+			? new Date(utcDate).toLocaleTimeString([], {
+					hour: "2-digit",
+					minute: "2-digit",
+				})
 			: "00:00";
 
 		const ht = entry.homeTeam ?? {};
@@ -155,115 +158,107 @@ async function getGroupedTodayMatches(): Promise<GroupedMatches> {
 }
 
 export default async function HomePage() {
+	const session = await auth();
 	const groupedMatches = await getGroupedTodayMatches();
 
 	const hasMatches = Object.keys(groupedMatches).length > 0;
 
 	return (
-		<div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 transition-colors">
-			<Navbar />
+		<AppShell user={session?.user}>
+			<div className="w-full space-y-6">
+				<header className="border-b pb-4 dark:border-zinc-800">
+					<h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+						Today&apos;s Fixtures
+					</h1>
+				</header>
 
-			<div className="flex">
-				<Sidebar />
-
-				<main className="flex-1 p-6 md:pl-6 w-full">
-					<div className="w-full max-w-7xl space-y-6">
-						<header className="border-b pb-4 dark:border-zinc-800">
-							<h1 className="text-3xl font-bold tracking-tight">
-								Today&apos;s Fixtures
-							</h1>
-							<p className="text-muted-foreground text-sm mt-1">
-								Live match scoring updated incrementally.
-							</p>
-						</header>
-
-						{!hasMatches ? (
-							<div className="text-center py-12 text-muted-foreground border rounded-lg border-dashed bg-white dark:bg-zinc-900 dark:border-zinc-800">
-								No matches scheduled for today.
-							</div>
-						) : (
-							<div className="space-y-6">
-								{Object.entries(groupedMatches).map(([leagueName, data]) => (
-									<section
-										key={leagueName}
-										className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-lg shadow-sm overflow-hidden"
-									>
-										<Link href={`/dashboard/leagues/${data.leagueId}`}>
-											<div className="flex items-center gap-3 p-4 bg-zinc-100/50 dark:bg-zinc-800/40 border-b dark:border-zinc-800">
-												{data.leagueLogo && (
-													<div className="w-6 h-6 flex items-center justify-center shrink-0 bg-zinc-200/60 dark:bg-zinc-800 rounded-full overflow-hidden">
+				{!hasMatches ? (
+					<div className="text-center py-12 text-muted-foreground border rounded-lg border-dashed bg-white dark:bg-zinc-900 dark:border-zinc-800">
+						No matches scheduled for today.
+					</div>
+				) : (
+					<div className="space-y-6">
+						{Object.entries(groupedMatches).map(([leagueName, data]) => (
+							<section
+								key={leagueName}
+								className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-lg shadow-sm overflow-hidden"
+							>
+								<Link href={`/dashboard/leagues/${data.leagueId}`}>
+									<div className="flex items-center gap-3 p-3 sm:p-4 bg-zinc-100/50 dark:bg-zinc-800/40 border-b dark:border-zinc-800">
+										{data.leagueLogo && (
+											<div className="w-6 h-6 flex items-center justify-center shrink-0 bg-zinc-200/60 dark:bg-zinc-800 rounded-full overflow-hidden">
+												<img
+													src={data.leagueLogo}
+													alt=""
+													className="w-6 h-6 object-contain"
+													style={{ contentVisibility: "auto" }}
+												/>
+											</div>
+										)}
+										<h2 className="font-semibold text-sm sm:text-base truncate">
+											{data.leagueName}
+										</h2>
+									</div>
+								</Link>
+								<div className="divide-y dark:divide-zinc-800">
+									{data.fixtures.map((match) => (
+										<Link
+											href={`/dashboard/matches/${match.id}`}
+											key={match.id}
+										>
+											<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 p-3 sm:p-4 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors cursor-pointer">
+												<div className="flex items-center gap-1.5 sm:gap-3 justify-end text-right min-w-0">
+													<span className="text-xs sm:text-sm font-medium truncate">
+														{match.homeTeam.name}
+													</span>
+													{match.homeTeam.logo && (
 														<img
-															src={data.leagueLogo}
+															src={match.homeTeam.logo}
 															alt=""
-															className="w-6 h-6 object-contain"
-															style={{ contentVisibility: "auto" }}
+															className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
 														/>
+													)}
+												</div>
+
+												<div className="flex flex-col items-center justify-center px-1 sm:px-2 shrink-0">
+													<div className="bg-zinc-100 dark:bg-zinc-800 px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-bold tracking-wider tabular-nums min-w-[44px] sm:min-w-[50px] text-center">
+														{NOT_STARTED.has(match.status)
+															? match.time
+															: `${match.homeScore ?? 0} - ${match.awayScore ?? 0}`}
 													</div>
-												)}
-												<h2 className="font-semibold text-base">
-													{data.leagueName}
-												</h2>
+													<span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest text-muted-foreground mt-1 text-center">
+														{match.status === "FINISHED"
+															? "FT"
+															: match.status === "LIVE" ||
+																	match.status === "IN_PLAY"
+																? "LIVE"
+																: match.status === "PAUSED"
+																	? "HT"
+																	: match.status}
+													</span>
+												</div>
+
+												<div className="flex items-center gap-1.5 sm:gap-3 justify-start text-left min-w-0">
+													{match.awayTeam.logo && (
+														<img
+															src={match.awayTeam.logo}
+															alt=""
+															className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
+														/>
+													)}
+													<span className="text-xs sm:text-sm font-medium truncate">
+														{match.awayTeam.name}
+													</span>
+												</div>
 											</div>
 										</Link>
-										<div className="divide-y dark:divide-zinc-800">
-											{data.fixtures.map((match) => (
-												<div
-													key={match.id}
-													className="grid grid-cols-3 items-center p-4 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors"
-												>
-													<div className="flex items-center gap-3 justify-end text-right">
-														<span className="text-sm font-medium truncate max-w-[120px] sm:max-w-none">
-															{match.homeTeam.name}
-														</span>
-														{match.homeTeam.logo && (
-															<img
-																src={match.homeTeam.logo}
-																alt=""
-																className="w-6 h-6 object-contain shrink-0"
-															/>
-														)}
-													</div>
-
-													<div className="flex flex-col items-center justify-center px-2">
-														<div className="bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded text-sm font-bold tracking-wider tabular-nums min-w-[50px] text-center">
-															{NOT_STARTED.has(match.status)
-																? match.time
-																: `${match.homeScore ?? 0} - ${match.awayScore ?? 0}`}
-														</div>
-														<span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mt-1 text-center">
-															{match.status === "FINISHED"
-																? "FT"
-																: match.status === "LIVE" ||
-																		match.status === "IN_PLAY"
-																	? "LIVE"
-																	: match.status === "PAUSED"
-																		? "HT"
-																		: match.status}
-														</span>
-													</div>
-
-													<div className="flex items-center gap-3 justify-start text-left">
-														{match.awayTeam.logo && (
-															<img
-																src={match.awayTeam.logo}
-																alt=""
-																className="w-6 h-6 object-contain shrink-0"
-															/>
-														)}
-														<span className="text-sm font-medium truncate max-w-[120px] sm:max-w-none">
-															{match.awayTeam.name}
-														</span>
-													</div>
-												</div>
-											))}
-										</div>
-									</section>
-								))}
-							</div>
-						)}
+									))}
+								</div>
+							</section>
+						))}
 					</div>
-				</main>
+				)}
 			</div>
-		</div>
+		</AppShell>
 	);
 }
