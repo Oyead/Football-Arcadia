@@ -37,15 +37,18 @@ export async function GET(request: Request) {
 	const normalized = query.toLowerCase();
 
 	const [teamsData, competitionsData] = await Promise.all([
-		fetchFootballData<ApiTeamsResponse>("/teams", { name: query }, 3600),
+		fetchFootballData<ApiTeamsResponse>("/teams", { limit: 500 }, 3600),
 		fetchFootballData<ApiCompetitionsResponse>("/competitions", {}, 86400),
 	]);
 
-	const teams = (teamsData?.teams ?? []).slice(0, 8).map((team) => ({
-		id: team.id,
-		name: team.name,
-		crest: team.crest,
-	}));
+	const teams = (teamsData?.teams ?? [])
+		.filter((team) => team.name.toLowerCase().includes(normalized))
+		.slice(0, 8)
+		.map((team) => ({
+			id: team.id,
+			name: team.name,
+			crest: team.crest,
+		}));
 
 	const leagues = (competitionsData?.competitions ?? [])
 		.filter(
