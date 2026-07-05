@@ -1,34 +1,33 @@
 "use client";
 
-import DOMPurify from "dompurify";
-import { Moon, SearchIcon, Sun } from "lucide-react";
+import { Menu, Moon, Sun } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
-export default function Navbar() {
-	const [searchQuery, setSearchQuery] = useState("");
+import SearchBar from "./SearchBar";
+
+export default function Navbar({
+	user: propUser,
+	onMenuToggle,
+}: {
+	user?: { name?: string | null; image?: string | null };
+	onMenuToggle?: () => void;
+}) {
 	const [isDivVisible, setIsDivVisible] = useState(false);
 	const [mounted, setMounted] = useState(false);
 	const { data: session, status } = useSession();
+	const user = propUser ?? session?.user;
+	const isAuthenticated = !!user && (status === "authenticated" || !!propUser);
+	const isLoading = status === "loading" && !propUser;
 	const { theme, setTheme } = useTheme();
 	const menuRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		setMounted(true);
 	}, []);
-
-	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const rawInput = e.target.value;
-		if (typeof window !== "undefined") {
-			const cleanInput = DOMPurify.sanitize(rawInput);
-			setSearchQuery(cleanInput);
-		} else {
-			setSearchQuery(rawInput);
-		}
-	};
 
 	const handleSignOut = async () => {
 		await signOut({ callbackUrl: "/" });
@@ -43,29 +42,31 @@ export default function Navbar() {
 		document.addEventListener("mousedown", handleClickOutside);
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
-	const user = session?.user;
+
 	return (
-		<nav className="grid grid-cols-[1fr_2fr_1fr] w-full h-16 items-center border-b px-6 bg-white dark:bg-zinc-950 dark:border-zinc-800 transition-colors duration-200">
-			<Link href="/" className="block p-2 cursor-pointer">
-				<div className="font-bold text-xl justify-self-start dark:text-white">
+		<nav className="sticky top-0 z-30 flex h-14 sm:h-16 items-center gap-2 sm:gap-4 border-b px-3 sm:px-6 bg-white dark:bg-zinc-950 dark:border-zinc-800 transition-colors duration-200">
+			<button
+				type="button"
+				onClick={onMenuToggle}
+				className="md:hidden p-2 -ml-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 cursor-pointer shrink-0"
+				aria-label="Open navigation menu"
+			>
+				<Menu className="w-5 h-5" />
+			</button>
+
+			<Link href="/" className="shrink-0 p-1 sm:p-2 cursor-pointer">
+				<div className="font-bold text-base sm:text-xl dark:text-white whitespace-nowrap">
 					Football Arcadia
 				</div>
 			</Link>
 
-			<div className="relative w-full min-w-[400px] max-w-xl shrink-0 justify-self-center mx-4">
-				<SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-				<input
-					type="text"
-					value={searchQuery}
-					onChange={handleSearchChange}
-					placeholder="Search..."
-					className="w-full h-10 pl-10 pr-4 rounded-full border outline-none text-sm bg-white dark:bg-zinc-900 dark:border-zinc-800 dark:text-white"
-				/>
+			<div className="flex-1 min-w-0 flex justify-center max-w-xl mx-auto">
+				<SearchBar />
 			</div>
 
 			<div
 				ref={menuRef}
-				className="justify-self-end relative flex items-center gap-4"
+				className="relative flex items-center gap-1 sm:gap-4 shrink-0"
 			>
 				<button
 					type="button"
@@ -81,15 +82,17 @@ export default function Navbar() {
 						))}
 				</button>
 
-				{status === "authenticated" && user ? (
+				{isAuthenticated ? (
 					<>
 						<button
 							type="button"
 							onClick={() => setIsDivVisible(!isDivVisible)}
-							className="flex items-center gap-4 focus:outline-none dark:text-white cursor-pointer"
+							className="flex items-center gap-2 sm:gap-4 focus:outline-none dark:text-white cursor-pointer"
 						>
-							<span>{user.name}</span>
-							<div className="relative h-10 w-10 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
+							<span className="hidden sm:inline text-sm truncate max-w-[120px]">
+								Hello!, {user.name}
+							</span>
+							<div className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-800 overflow-hidden shrink-0">
 								{user.image ? (
 									<Image
 										src={user.image}
@@ -117,18 +120,18 @@ export default function Navbar() {
 							</div>
 						)}
 					</>
-				) : status === "loading" ? (
+				) : isLoading ? (
 					<div className="w-8 h-8 rounded-full border-2 border-zinc-300 border-t-zinc-600 animate-spin" />
 				) : (
-					<Button
-						variant="outline"
-						onClick={() =>
-							(window.location.href = "/api/auth/signin?callbackUrl=/")
-						}
-						className="cursor-pointer"
-					>
-						Sign In
-					</Button>
+					<Link href="/login">
+						<Button
+							variant="outline"
+							size="sm"
+							className="cursor-pointer text-xs sm:text-sm"
+						>
+							Sign In
+						</Button>
+					</Link>
 				)}
 			</div>
 		</nav>
