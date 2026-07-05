@@ -19,6 +19,7 @@ export const users = pgTable("users", {
 	email: text("email").notNull(),
 	emailVerified: timestamp("email_verified", { mode: "date" }),
 	image: text("image"),
+	password: text("password"),
 	pushSubscription: text("push_subscription"),
 	createdAt: timestamp("created_at").defaultNow(),
 });
