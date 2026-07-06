@@ -18,13 +18,17 @@ export async function fetchFootballData<T>(
 	const cacheKey = `football-data:${endpoint}:${JSON.stringify(params)}`;
 
 	try {
-		const cached = await redis.get<T>(cacheKey);
-		if (cached) return cached;
+		if (ttl > 0) {
+			const cached = await redis.get<T>(cacheKey);
+			if (cached) return cached;
+		}
 
 		const response = await apiClient.get(endpoint, { params });
 		const data = response.data;
 
-		await redis.set(cacheKey, data, { ex: ttl });
+		if (ttl > 0) {
+			await redis.set(cacheKey, data, { ex: ttl });
+		}
 		return data as T;
 	} catch (error) {
 		if (axios.isAxiosError(error)) {
