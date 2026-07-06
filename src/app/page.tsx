@@ -3,7 +3,7 @@ import AppShell from "@/components/layout/AppShell";
 import { auth } from "@/lib/auth";
 import { LEAGUE_PRIORITIES } from "@/lib/constants/leagues";
 import { fetchFootballData } from "@/server/services/football-api";
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 interface MatchData {
 	id: string;
@@ -50,7 +50,7 @@ interface ApiTeam {
 }
 
 interface ApiScore {
-	fullTime: { home: number | null; away: number | null };
+	fullTime: { home: number | null; away: number | null } | null;
 }
 
 interface ApiMatch {
@@ -70,7 +70,7 @@ interface ApiMatchesResponse {
 }
 
 async function getGroupedTodayMatches(): Promise<GroupedMatches> {
-	const data = await fetchFootballData<ApiMatchesResponse>("/matches");
+	const data = await fetchFootballData<ApiMatchesResponse>("/matches", {}, 0);
 
 	const grouped: GroupedMatches = {};
 
@@ -165,7 +165,7 @@ export default async function HomePage() {
 
 	return (
 		<AppShell user={session?.user}>
-			<div className="w-full space-y-6">
+			<div className="w-full space-y-8">
 				<header className="border-b pb-4 dark:border-zinc-800">
 					<h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
 						Today&apos;s Fixtures
@@ -177,25 +177,23 @@ export default async function HomePage() {
 						No matches scheduled for today.
 					</div>
 				) : (
-					<div className="space-y-6">
+					<div className="space-y-8">
 						{Object.entries(groupedMatches).map(([leagueName, data]) => (
 							<section
 								key={leagueName}
-								className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-lg shadow-sm overflow-hidden"
+								className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden"
 							>
 								<Link href={`/dashboard/leagues/${data.leagueId}`}>
-									<div className="flex items-center gap-3 p-3 sm:p-4 bg-zinc-100/50 dark:bg-zinc-800/40 border-b dark:border-zinc-800">
+									<div className="flex items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4 bg-zinc-100/50 dark:bg-zinc-800/40 border-b dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors">
 										{data.leagueLogo && (
-											<div className="w-6 h-6 flex items-center justify-center shrink-0 bg-zinc-200/60 dark:bg-zinc-800 rounded-full overflow-hidden">
-												<img
-													src={data.leagueLogo}
-													alt=""
-													className="w-6 h-6 object-contain"
-													style={{ contentVisibility: "auto" }}
-												/>
-											</div>
+											<img
+												src={data.leagueLogo}
+												alt=""
+												className="w-7 h-7 object-contain shrink-0"
+												style={{ contentVisibility: "auto" }}
+											/>
 										)}
-										<h2 className="font-semibold text-sm sm:text-base truncate">
+										<h2 className="font-semibold text-base sm:text-lg tracking-tight truncate">
 											{data.leagueName}
 										</h2>
 									</div>
@@ -206,27 +204,30 @@ export default async function HomePage() {
 											href={`/dashboard/matches/${match.id}`}
 											key={match.id}
 										>
-											<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 p-3 sm:p-4 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors cursor-pointer">
-												<div className="flex items-center gap-1.5 sm:gap-3 justify-end text-right min-w-0">
-													<span className="text-xs sm:text-sm font-medium truncate">
+											<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-4 px-4 py-4 sm:px-6 sm:py-5 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors cursor-pointer">
+												<div className="flex items-center gap-2.5 sm:gap-3 justify-end text-right min-w-0">
+													<span className="text-sm sm:text-base font-medium truncate">
 														{match.homeTeam.name}
 													</span>
 													{match.homeTeam.logo && (
 														<img
 															src={match.homeTeam.logo}
 															alt=""
-															className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
+															className="w-9 h-6 sm:w-10 sm:h-7 object-cover rounded-sm shrink-0"
 														/>
 													)}
 												</div>
 
-												<div className="flex flex-col items-center justify-center px-1 sm:px-2 shrink-0">
-													<div className="bg-zinc-100 dark:bg-zinc-800 px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-bold tracking-wider tabular-nums min-w-[44px] sm:min-w-[50px] text-center">
+												<div className="relative flex items-center justify-center px-2 sm:px-3 shrink-0">
+													<div className="flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 w-20 h-9 sm:w-24 sm:h-10 rounded-lg text-sm sm:text-base font-bold tracking-wider tabular-nums text-center">
 														{NOT_STARTED.has(match.status)
 															? match.time
-															: `${match.homeScore ?? 0} - ${match.awayScore ?? 0}`}
+															: match.homeScore != null &&
+																	match.awayScore != null
+																? `${match.homeScore} - ${match.awayScore}`
+																: "? - ?"}
 													</div>
-													<span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest text-muted-foreground mt-1 text-center">
+													<span className="absolute top-full mt-1 left-0 right-0 text-[10px] sm:text-[11px] uppercase font-bold tracking-widest text-muted-foreground text-center">
 														{match.status === "FINISHED"
 															? "FT"
 															: match.status === "LIVE" ||
@@ -238,15 +239,15 @@ export default async function HomePage() {
 													</span>
 												</div>
 
-												<div className="flex items-center gap-1.5 sm:gap-3 justify-start text-left min-w-0">
+												<div className="flex items-center gap-2.5 sm:gap-3 justify-start text-left min-w-0">
 													{match.awayTeam.logo && (
 														<img
 															src={match.awayTeam.logo}
 															alt=""
-															className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
+															className="w-9 h-6 sm:w-10 sm:h-7 object-cover rounded-sm shrink-0"
 														/>
 													)}
-													<span className="text-xs sm:text-sm font-medium truncate">
+													<span className="text-sm sm:text-base font-medium truncate">
 														{match.awayTeam.name}
 													</span>
 												</div>
