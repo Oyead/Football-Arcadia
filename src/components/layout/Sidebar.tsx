@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 const links = [
 	{ href: "/", label: "Home" },
-	{ href: "/dashboard/leagues", label: "Leagues" },
+	{ href: "/leagues", label: "Leagues" },
 ];
 
 export default function Sidebar({
