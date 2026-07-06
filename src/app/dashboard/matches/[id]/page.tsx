@@ -1,6 +1,7 @@
 import { fetchFootballData } from "@server/services/football-api";
 import Image from "next/image";
 import Link from "next/link";
+export const dynamic = "force-dynamic";
 
 interface ApiArea {
 	id: number;
@@ -35,7 +36,8 @@ interface ApiTeam {
 }
 
 interface ApiScore {
-	fullTime: { home: number | null; away: number | null };
+	fullTime: { home: number | null; away: number | null } | null;
+	halfTime?: { home: number | null; away: number | null } | null;
 }
 
 interface ApiMatch {
@@ -96,7 +98,7 @@ async function MatchesDetailPage({
 }) {
 	const { id } = await params;
 	const matchId = parseInt(id, 10);
-	const match = await fetchFootballData<ApiMatch>(`/matches/${matchId}`);
+	const match = await fetchFootballData<ApiMatch>(`/matches/${matchId}`, {}, 0);
 
 	if (!match) {
 		return (
@@ -217,7 +219,7 @@ async function MatchesDetailPage({
 							>
 								{isNotStarted
 									? matchTime || "--:--"
-									: `${match.score.fullTime.home ?? 0} - ${match.score.fullTime.away ?? 0}`}
+									: `${match.score?.fullTime?.home ?? "?"} - ${match.score?.fullTime?.away ?? "?"}`}
 							</div>
 							<span
 								className={`
