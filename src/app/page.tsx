@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
+import { MatchTime } from "@/components/match-time";
 import { auth } from "@/lib/auth";
 import { LEAGUE_PRIORITIES } from "@/lib/constants/leagues";
 import { fetchFootballData } from "@/server/services/football-api";
@@ -8,7 +9,7 @@ export const dynamic = "force-dynamic";
 interface MatchData {
 	id: string;
 	status: string;
-	time: string;
+	utcDate: string;
 	homeTeam: { name: string; logo: string };
 	awayTeam: { name: string; logo: string };
 	homeScore: number | null;
@@ -99,12 +100,6 @@ async function getGroupedTodayMatches(): Promise<GroupedMatches> {
 
 		const status = String(entry.status ?? "").trim() || "SCHEDULED";
 		const utcDate = String(entry.utcDate ?? "");
-		const matchTime = utcDate
-			? new Date(utcDate).toLocaleTimeString([], {
-					hour: "2-digit",
-					minute: "2-digit",
-				})
-			: "00:00";
 
 		const ht = entry.homeTeam ?? {};
 		const at = entry.awayTeam ?? {};
@@ -113,7 +108,7 @@ async function getGroupedTodayMatches(): Promise<GroupedMatches> {
 		grouped[key].fixtures.push({
 			id: String(entry.id ?? Math.random()),
 			status,
-			time: matchTime,
+			utcDate,
 			homeTeam: {
 				name: String(ht.name ?? "Home Team"),
 				logo: String(ht.crest ?? ""),
@@ -220,12 +215,14 @@ export default async function HomePage() {
 
 												<div className="relative flex items-center justify-center px-2 sm:px-3 shrink-0">
 													<div className="flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 w-20 h-9 sm:w-24 sm:h-10 rounded-lg text-sm sm:text-base font-bold tracking-wider tabular-nums text-center">
-														{NOT_STARTED.has(match.status)
-															? match.time
-															: match.homeScore != null &&
-																	match.awayScore != null
-																? `${match.homeScore} - ${match.awayScore}`
-																: "? - ?"}
+														{NOT_STARTED.has(match.status) ? (
+															<MatchTime utcDate={match.utcDate} />
+														) : match.homeScore != null &&
+															match.awayScore != null ? (
+															`${match.homeScore} - ${match.awayScore}`
+														) : (
+															"? - ?"
+														)}
 													</div>
 													<span className="absolute top-full mt-1 left-0 right-0 text-[10px] sm:text-[11px] uppercase font-bold tracking-widest text-muted-foreground text-center">
 														{match.status === "FINISHED"

@@ -1,6 +1,7 @@
 import { fetchFootballData } from "@server/services/football-api";
 import Image from "next/image";
 import Link from "next/link";
+import { MatchTime } from "@/components/match-time";
 export const dynamic = "force-dynamic";
 
 interface ApiArea {
@@ -125,13 +126,6 @@ async function MatchesDetailPage({
 			})
 		: "";
 
-	const matchTime = match.utcDate
-		? new Date(match.utcDate).toLocaleTimeString([], {
-				hour: "2-digit",
-				minute: "2-digit",
-			})
-		: "";
-
 	const isNotStarted = NOT_STARTED.has(match.status);
 	const isLive =
 		!isNotStarted && (match.status === "LIVE" || match.status === "IN_PLAY");
@@ -217,9 +211,11 @@ async function MatchesDetailPage({
 										}
 									`}
 							>
-								{isNotStarted
-									? matchTime || "--:--"
-									: `${match.score?.fullTime?.home ?? "?"} - ${match.score?.fullTime?.away ?? "?"}`}
+								{isNotStarted ? (
+									<MatchTime utcDate={match.utcDate} />
+								) : (
+									`${match.score?.fullTime?.home ?? "?"} - ${match.score?.fullTime?.away ?? "?"}`
+								)}
 							</div>
 							<span
 								className={`
