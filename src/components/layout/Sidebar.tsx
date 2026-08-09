@@ -1,13 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Suspense } from "react";
 import { cn } from "@/lib/utils";
 
 const links = [
 	{ href: "/", label: "Home" },
 	{ href: "/leagues", label: "Leagues" },
 ];
+
+function FollowingLink({ onClose }: { onClose?: () => void }) {
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const isActive =
+		pathname === "/leagues" && searchParams.get("tab") === "following";
+
+	return (
+		<Link
+			href="/leagues?tab=following"
+			onClick={onClose}
+			className={cn(
+				"block rounded-md py-2 pl-8 pr-2 text-sm transition-colors",
+				isActive
+					? "bg-accent text-accent-foreground"
+					: "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+			)}
+		>
+			Following
+		</Link>
+	);
+}
 
 export default function Sidebar({
 	open,
@@ -17,6 +41,8 @@ export default function Sidebar({
 	onClose?: () => void;
 }) {
 	const pathname = usePathname();
+	const { status } = useSession();
+	const isSignedIn = status === "authenticated";
 
 	return (
 		<>
@@ -57,6 +83,11 @@ export default function Sidebar({
 							</Link>
 						);
 					})}
+					{isSignedIn && (
+						<Suspense>
+							<FollowingLink onClose={onClose} />
+						</Suspense>
+					)}
 				</nav>
 			</aside>
 		</>
