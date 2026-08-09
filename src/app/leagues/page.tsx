@@ -1,8 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FollowedTeams } from "@/components/FollowedTeams";
-import { auth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
 import { fetchFootballData } from "@/server/services/football-api";
 
 interface ApiArea {
@@ -27,44 +24,9 @@ interface ApiCompetitionsResponse {
 	competitions: ApiCompetition[];
 }
 
-function TabLink({
-	href,
-	active,
-	children,
-}: {
-	href: string;
-	active: boolean;
-	children: React.ReactNode;
-}) {
-	return (
-		<Link
-			href={href}
-			aria-current={active ? "page" : undefined}
-			className={cn(
-				"px-3 py-1.5 text-sm font-medium rounded-full transition-colors",
-				active
-					? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-					: "bg-white dark:bg-zinc-900 border dark:border-zinc-800 text-muted-foreground hover:text-foreground hover:border-zinc-300 dark:hover:border-zinc-700",
-			)}
-		>
-			{children}
-		</Link>
-	);
-}
-
-export default async function LeaguesPage({
-	searchParams,
-}: {
-	searchParams: Promise<{ tab?: string }>;
-}) {
-	const { tab } = await searchParams;
-	const session = await auth();
-	const userId = session?.user?.id;
-	const isFollowing = tab === "following" && !!userId;
-
-	const data = isFollowing
-		? null
-		: await fetchFootballData<ApiCompetitionsResponse>("/competitions");
+export default async function LeaguesPage() {
+	const data =
+		await fetchFootballData<ApiCompetitionsResponse>("/competitions");
 	const leagues = data?.competitions ?? [];
 
 	return (
@@ -74,26 +36,11 @@ export default async function LeaguesPage({
 					Leagues
 				</h1>
 				<p className="text-sm text-muted-foreground mt-1">
-					{isFollowing
-						? "Teams you follow"
-						: `${leagues.length} competitions available`}
+					{leagues.length} competitions available
 				</p>
 			</header>
 
-			<nav className="flex gap-2">
-				<TabLink href="/leagues" active={!isFollowing}>
-					All Leagues
-				</TabLink>
-				{session?.user?.id && (
-					<TabLink href="/leagues?tab=following" active={isFollowing}>
-						Following
-					</TabLink>
-				)}
-			</nav>
-
-			{isFollowing && userId ? (
-				<FollowedTeams userId={userId} />
-			) : leagues.length === 0 ? (
+			{leagues.length === 0 ? (
 				<div className="text-center py-12 text-muted-foreground border rounded-lg border-dashed bg-white dark:bg-zinc-900 dark:border-zinc-800">
 					No competitions available.
 				</div>

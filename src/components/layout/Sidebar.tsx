@@ -1,35 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Suspense } from "react";
 import { cn } from "@/lib/utils";
 
 const links = [
 	{ href: "/", label: "Home" },
 	{ href: "/leagues", label: "Leagues" },
+	{ href: "/following", label: "Following", requiresAuth: true },
 ];
-
-function FollowingLink({ onClose }: { onClose?: () => void }) {
-	const pathname = usePathname();
-	const searchParams = useSearchParams();
-	const isActive =
-		pathname === "/leagues" && searchParams.get("tab") === "following";
-
-	return (
-		<Link
-			href="/leagues?tab=following"
-			onClick={onClose}
-			className={cn(
-				"block p-2 rounded-md text-sm font-medium transition-colors",
-				isActive ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
-			)}
-		>
-			Following
-		</Link>
-	);
-}
 
 export default function Sidebar({
 	open,
@@ -59,33 +39,30 @@ export default function Sidebar({
 				)}
 			>
 				<nav className="flex-1 px-4 py-6 space-y-1 pt-20 md:pt-6">
-					{links.map((link) => {
-						const isActive =
-							link.href === "/"
-								? pathname === "/"
-								: pathname.startsWith(link.href);
+					{links
+						.filter((link) => !link.requiresAuth || isSignedIn)
+						.map((link) => {
+							const isActive =
+								link.href === "/"
+									? pathname === "/"
+									: pathname.startsWith(link.href);
 
-						return (
-							<Link
-								key={link.href}
-								href={link.href}
-								onClick={onClose}
-								className={cn(
-									"block p-2 rounded-md text-sm font-medium transition-colors",
-									isActive
-										? "bg-accent text-accent-foreground"
-										: "hover:bg-accent/50",
-								)}
-							>
-								{link.label}
-							</Link>
-						);
-					})}
-					{isSignedIn && (
-						<Suspense>
-							<FollowingLink onClose={onClose} />
-						</Suspense>
-					)}
+							return (
+								<Link
+									key={link.href}
+									href={link.href}
+									onClick={onClose}
+									className={cn(
+										"block p-2 rounded-md text-sm font-medium transition-colors",
+										isActive
+											? "bg-accent text-accent-foreground"
+											: "hover:bg-accent/50",
+									)}
+								>
+									{link.label}
+								</Link>
+							);
+						})}
 				</nav>
 			</aside>
 		</>
