@@ -177,7 +177,7 @@ async function MatchesDetailPage({
 				<div className="px-4 py-8 md:px-8 md:py-10">
 					<div className="flex items-center justify-center gap-3 md:gap-8">
 						<Link
-							href={`/dashboard/teams/${match.homeTeam.id}`}
+							href={`/teams/${match.homeTeam.id}`}
 							className="flex flex-col items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity group"
 						>
 							<div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden ring-1 ring-zinc-200 dark:ring-zinc-700 group-hover:ring-2 group-hover:ring-zinc-400 dark:group-hover:ring-zinc-500 transition-all">
@@ -237,7 +237,7 @@ async function MatchesDetailPage({
 						</div>
 
 						<Link
-							href={`/dashboard/teams/${match.awayTeam.id}`}
+							href={`/teams/${match.awayTeam.id}`}
 							className="flex flex-col items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity group"
 						>
 							<div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden ring-1 ring-zinc-200 dark:ring-zinc-700 group-hover:ring-2 group-hover:ring-zinc-400 dark:group-hover:ring-zinc-500 transition-all">

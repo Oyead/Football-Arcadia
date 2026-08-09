@@ -228,7 +228,7 @@ function LeagueTable({ teams }: { teams: StandingTeam[] }) {
 							<td className="p-2 sm:p-3 font-medium">{team.rank}</td>
 							<td className="p-2 sm:p-3">
 								<Link
-									href={`/dashboard/teams/${team.team.id}`}
+									href={`/teams/${team.team.id}`}
 									className="flex items-center gap-2 min-w-0"
 								>
 									{team.team.logo && (
@@ -312,7 +312,7 @@ function TournamentGroups({ groups }: { groups: StandingTeam[][] }) {
 										<td className="p-2 font-medium">{team.rank}</td>
 										<td className="p-2">
 											<Link
-												href={`/dashboard/teams/${team.team.id}`}
+												href={`/teams/${team.team.id}`}
 												className="flex items-center gap-2"
 											>
 												{team.team.logo && (

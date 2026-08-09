@@ -178,7 +178,7 @@ export default async function HomePage() {
 								key={leagueName}
 								className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden"
 							>
-								<Link href={`/dashboard/leagues/${data.leagueId}`}>
+								<Link href={`/leagues/${data.leagueId}`}>
 									<div className="flex items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4 bg-zinc-100/50 dark:bg-zinc-800/40 border-b dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors">
 										{data.leagueLogo && (
 											<img
@@ -195,10 +195,7 @@ export default async function HomePage() {
 								</Link>
 								<div className="divide-y dark:divide-zinc-800">
 									{data.fixtures.map((match) => (
-										<Link
-											href={`/dashboard/matches/${match.id}`}
-											key={match.id}
-										>
+										<Link href={`/matches/${match.id}`} key={match.id}>
 											<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-4 px-4 py-4 sm:px-6 sm:py-5 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors cursor-pointer">
 												<div className="flex items-center gap-2.5 sm:gap-3 justify-end text-right min-w-0">
 													<span className="text-sm sm:text-base font-medium truncate">

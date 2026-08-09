@@ -1,6 +1,11 @@
 import { fetchFootballData } from "@server/services/football-api";
+import { and, eq } from "drizzle-orm";
 import Image from "next/image";
 import Link from "next/link";
+import { FollowButton } from "@/components/FollowButton";
+import { auth } from "@/lib/auth";
+import { db } from "@/server/db";
+import { userFavourites } from "@/server/db/schema";
 
 interface ApiArea {
 	id: number;
@@ -130,8 +135,22 @@ function SquadTable({ players }: { players: ApiPlayer[] }) {
 
 async function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
-	const teamId = parseInt(id, 10);
+	const parsedId = parseInt(id, 10);
+	const teamId = Number.isNaN(parsedId) ? 0 : parsedId;
 	const team = await fetchFootballData<ApiTeamResponse>(`/teams/${teamId}`);
+
+	const session = await auth();
+	let following = false;
+	if (team && session?.user?.id) {
+		const favourite = await db.query.userFavourites.findFirst({
+			where: and(
+				eq(userFavourites.userId, session.user.id),
+				eq(userFavourites.entityType, "team"),
+				eq(userFavourites.entityId, teamId),
+			),
+		});
+		following = !!favourite;
+	}
 
 	if (!team) {
 		return (
@@ -190,11 +209,14 @@ async function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
 							)}
 						</div>
 					</div>
-					{team.founded && (
-						<span className="text-xs text-muted-foreground shrink-0">
-							Est. {team.founded}
-						</span>
-					)}
+					<div className="flex items-center gap-3 shrink-0">
+						<FollowButton teamId={team.id} initiallyFollowing={following} />
+						{team.founded && (
+							<span className="text-xs text-muted-foreground shrink-0">
+								Est. {team.founded}
+							</span>
+						)}
+					</div>
 				</div>
 
 				<div className="p-4 md:p-6 space-y-3">
@@ -249,7 +271,7 @@ async function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
 						{team.runningCompetitions.map((comp) => (
 							<Link
 								key={comp.id}
-								href={`/dashboard/leagues/${comp.id}`}
+								href={`/leagues/${comp.id}`}
 								className="flex items-center gap-3 p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/20 transition-colors"
 							>
 								{comp.emblem && (

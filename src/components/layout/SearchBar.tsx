@@ -155,7 +155,7 @@ export default function SearchBar({ className }: { className?: string }) {
 								<button
 									key={league.id}
 									type="button"
-									onClick={() => navigate(`/dashboard/leagues/${league.id}`)}
+									onClick={() => navigate(`/leagues/${league.id}`)}
 									className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
 								>
 									{league.emblem ? (
@@ -190,7 +190,7 @@ export default function SearchBar({ className }: { className?: string }) {
 								<button
 									key={team.id}
 									type="button"
-									onClick={() => navigate(`/dashboard/teams/${team.id}`)}
+									onClick={() => navigate(`/teams/${team.id}`)}
 									className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
 								>
 									{team.crest ? (
