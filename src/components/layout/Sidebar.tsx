@@ -22,10 +22,8 @@ function FollowingLink({ onClose }: { onClose?: () => void }) {
 			href="/leagues?tab=following"
 			onClick={onClose}
 			className={cn(
-				"block rounded-md py-2 pl-8 pr-2 text-sm transition-colors",
-				isActive
-					? "bg-accent text-accent-foreground"
-					: "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+				"block p-2 rounded-md text-sm font-medium transition-colors",
+				isActive ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
 			)}
 		>
 			Following
