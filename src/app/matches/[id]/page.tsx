@@ -39,6 +39,15 @@ interface ApiTeam {
 interface ApiScore {
 	fullTime: { home: number | null; away: number | null } | null;
 	halfTime?: { home: number | null; away: number | null } | null;
+	duration?: string;
+	winner?: string;
+}
+
+interface ApiReferee {
+	id: number;
+	name: string;
+	type: string;
+	nationality?: string | null;
 }
 
 interface ApiMatch {
@@ -48,12 +57,14 @@ interface ApiMatch {
 	id: number;
 	utcDate: string;
 	status: string;
+	venue?: string | null;
 	matchday?: number;
 	stage?: string;
 	group?: string | null;
 	homeTeam: ApiTeam;
 	awayTeam: ApiTeam;
 	score: ApiScore;
+	referees?: ApiReferee[];
 }
 
 const NOT_STARTED = new Set([
@@ -76,6 +87,26 @@ const STATUS_LABELS: Record<string, string> = {
 	CANCELLED: "CANC",
 	AWARDED: "AWD",
 };
+
+const DURATION_LABELS: Record<string, string> = {
+	REGULAR: "Regular time",
+	EXTRA_TIME: "Extra time",
+	PENALTY_SHOOTOUT: "Penalties",
+};
+
+const WINNER_LABELS: Record<string, string> = {
+	HOME_TEAM: "Home win",
+	AWAY_TEAM: "Away win",
+	DRAW: "Draw",
+};
+
+function formatRefereeType(type: string) {
+	if (!type) return "Referee";
+	return type
+		.toLowerCase()
+		.replace(/_/g, " ")
+		.replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 function InfoRow({
 	label,
@@ -131,6 +162,12 @@ async function MatchesDetailPage({
 		!isNotStarted && (match.status === "LIVE" || match.status === "IN_PLAY");
 	const isFinished = match.status === "FINISHED" || match.status === "AWARDED";
 
+	const halfTime = match.score?.halfTime;
+	const hasHalfTime =
+		isFinished && halfTime?.home != null && halfTime?.away != null;
+	const seasonStart = match.season?.startDate?.split("-")[0] ?? "";
+	const seasonEnd = match.season?.endDate?.split("-")[0] ?? "";
+
 	return (
 		<div className="space-y-4 sm:space-y-6">
 			{/* Back link */}
@@ -161,9 +198,12 @@ async function MatchesDetailPage({
 						</h1>
 						<div className="flex items-center gap-2 text-xs text-muted-foreground">
 							{match.area && <span>{match.area.name}</span>}
-							{match.season && (
-								<span>Season {match.season.startDate?.split("-")[0]}</span>
+							{match.competition.type && (
+								<span className="uppercase">
+									{match.competition.type.replace(/_/g, " ")}
+								</span>
 							)}
+							{match.season && <span>Season {seasonStart}</span>}
 						</div>
 					</div>
 					{match.matchday && (
@@ -186,7 +226,7 @@ async function MatchesDetailPage({
 									alt=""
 									width={96}
 									height={96}
-									className="object-cover w-full h-full"
+									className="object-contain w-full h-full"
 								/>
 							</div>
 							<span className="text-sm md:text-base font-semibold text-center truncate max-w-[100px] sm:max-w-[160px]">
@@ -217,6 +257,11 @@ async function MatchesDetailPage({
 									`${match.score?.fullTime?.home ?? "?"} - ${match.score?.fullTime?.away ?? "?"}`
 								)}
 							</div>
+							{hasHalfTime && (
+								<span className="text-xs font-medium text-muted-foreground tabular-nums">
+									HT {halfTime.home} - {halfTime.away}
+								</span>
+							)}
 							<span
 								className={`
 										text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded
@@ -246,7 +291,7 @@ async function MatchesDetailPage({
 									alt=""
 									width={96}
 									height={96}
-									className="object-cover w-full h-full"
+									className="object-contain w-full h-full"
 								/>
 							</div>
 							<span className="text-sm md:text-base font-semibold text-center truncate max-w-[100px] sm:max-w-[160px]">
@@ -263,7 +308,13 @@ async function MatchesDetailPage({
 			</div>
 
 			{/* Match info */}
-			{(match.stage || match.group) && (
+			{(match.stage ||
+				match.group ||
+				match.venue ||
+				match.matchday != null ||
+				match.score?.duration ||
+				match.score?.winner ||
+				(match.season?.startDate && match.season?.endDate)) && (
 				<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-lg shadow-sm overflow-hidden">
 					<div className="flex items-center gap-3 p-4 bg-zinc-100/50 dark:bg-zinc-800/40 border-b dark:border-zinc-800">
 						<h2 className="font-semibold text-base">Match Info</h2>
@@ -275,6 +326,56 @@ async function MatchesDetailPage({
 						{match.group && (
 							<InfoRow label="Group">Group {match.group}</InfoRow>
 						)}
+						{match.venue && <InfoRow label="Venue">{match.venue}</InfoRow>}
+						{match.matchday != null && (
+							<InfoRow label="Matchday">{match.matchday}</InfoRow>
+						)}
+						{match.score?.duration && (
+							<InfoRow label="Duration">
+								{DURATION_LABELS[match.score.duration] ??
+									match.score.duration.replace(/_/g, " ")}
+							</InfoRow>
+						)}
+						{match.score?.winner && (
+							<InfoRow label="Result">
+								{WINNER_LABELS[match.score.winner] ??
+									match.score.winner.replace(/_/g, " ")}
+							</InfoRow>
+						)}
+						{match.season?.startDate && match.season?.endDate && (
+							<InfoRow label="Season">
+								{seasonStart} &ndash; {seasonEnd}
+							</InfoRow>
+						)}
+					</div>
+				</div>
+			)}
+
+			{/* Referees */}
+			{match.referees && match.referees.length > 0 && (
+				<div className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-lg shadow-sm overflow-hidden">
+					<div className="flex items-center gap-3 p-4 bg-zinc-100/50 dark:bg-zinc-800/40 border-b dark:border-zinc-800">
+						<h2 className="font-semibold text-base">Referees</h2>
+					</div>
+					<div className="p-4 space-y-3">
+						{match.referees.map((referee) => (
+							<div
+								key={referee.id}
+								className="flex items-center justify-between gap-3"
+							>
+								<div className="min-w-0">
+									<p className="text-sm font-medium truncate">{referee.name}</p>
+									{referee.nationality && (
+										<p className="text-xs text-muted-foreground">
+											{referee.nationality}
+										</p>
+									)}
+								</div>
+								<span className="text-xs uppercase font-medium text-muted-foreground shrink-0">
+									{formatRefereeType(referee.type)}
+								</span>
+							</div>
+						))}
 					</div>
 				</div>
 			)}
