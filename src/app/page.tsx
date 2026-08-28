@@ -205,7 +205,7 @@ export default async function HomePage() {
 														<img
 															src={match.homeTeam.logo}
 															alt=""
-															className="w-9 h-6 sm:w-10 sm:h-7 object-cover rounded-sm shrink-0"
+															className="w-7 h-7 object-contain shrink-0"
 														/>
 													)}
 												</div>
@@ -238,7 +238,7 @@ export default async function HomePage() {
 														<img
 															src={match.awayTeam.logo}
 															alt=""
-															className="w-9 h-6 sm:w-10 sm:h-7 object-cover rounded-sm shrink-0"
+															className="w-7 h-7 object-contain shrink-0"
 														/>
 													)}
 													<span className="text-sm sm:text-base font-medium truncate">

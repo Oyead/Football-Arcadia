@@ -57,8 +57,8 @@ export default async function LeaguesPage() {
 									<Image
 										src={league.emblem}
 										alt=""
-										width={48}
-										height={48}
+										width={56}
+										height={56}
 										className="object-contain"
 									/>
 								) : (

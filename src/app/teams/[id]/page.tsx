@@ -185,7 +185,7 @@ async function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
 							alt=""
 							width={48}
 							height={48}
-							className="object-cover w-full h-full"
+							className="object-contain w-full h-full"
 						/>
 					</div>
 					<div className="flex-1 min-w-0">
